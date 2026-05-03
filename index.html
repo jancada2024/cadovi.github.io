@@ -35,7 +35,7 @@ const db = getFirestore(app);
 
 const tasksCol = collection(db, "tasks");
 
-function addTask() {
+window.addTask = function() {
   const name = document.getElementById("task").value;
   const deadline = document.getElementById("deadline").value;
 
@@ -47,7 +47,7 @@ function addTask() {
   });
 }
 
-function markDone(id) {
+window.markDone = function(id) {
   const ref = doc(db, "tasks", id);
   updateDoc(ref, { done: true });
 }
