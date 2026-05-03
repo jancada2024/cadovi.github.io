@@ -4,13 +4,18 @@
 <meta charset="UTF-8">
 <title>Rodinný plánovač</title>
 
+<!-- 🔤 Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- 📅 Flatpickr kalendář -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 20px;
 
-  /* 🎨 animované gradient pozadí */
   background: linear-gradient(-45deg, #fceabb, #f8b500, #e0f7fa, #fce4ec);
   background-size: 400% 400%;
   animation: gradientBG 12s ease infinite;
@@ -22,6 +27,19 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+/* 🎈 animované pozadí */
+.floating {
+  position: fixed;
+  font-size: 28px;
+  opacity: 0.15;
+  animation: float 20s linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(100vh) }
+  100% { transform: translateY(-10vh) }
+}
+
 .container {
   max-width: 600px;
   margin: auto;
@@ -31,13 +49,8 @@ body {
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-h1 {
-  text-align: center;
-}
-
-h2 {
-  margin-top: 25px;
-}
+h1 { text-align: center; }
+h2 { margin-top: 25px; }
 
 input, select {
   padding: 10px;
@@ -56,9 +69,7 @@ button {
   transition: 0.2s;
 }
 
-button:hover {
-  transform: scale(1.05);
-}
+button:hover { transform: scale(1.05); }
 
 .btn-add { background: #007bff; color: white; }
 .btn-done { background: #28a745; color: white; }
@@ -89,10 +100,23 @@ button:hover {
   font-size: 0.85em;
   color: #666;
 }
+
+/* 📅 styl kalendáře */
+.flatpickr-calendar {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 
 <body>
+
+<!-- 🎈 animované "rodinné" pozadí -->
+<div class="floating" style="left:10%; animation-delay:0s;">👨‍👩‍👧</div>
+<div class="floating" style="left:30%; animation-delay:5s;">👶</div>
+<div class="floating" style="left:50%; animation-delay:2s;">🏡</div>
+<div class="floating" style="left:70%; animation-delay:8s;">🧸</div>
+<div class="floating" style="left:85%; animation-delay:3s;">🚲</div>
 
 <div class="container">
 
@@ -101,11 +125,11 @@ button:hover {
 <h2>➕ Přidat úkol</h2>
 
 <input id="task" placeholder="📝 Co je potřeba udělat?">
-<input type="date" id="deadline">
+<input id="deadline" placeholder="Vyber datum">
 
 <select id="author">
-  <option>👨 Honzule</option>
-  <option>👩 Marťule</option>
+  <option>👨 Já</option>
+  <option>👩 Manželka</option>
 </select>
 
 <button class="btn-add" onclick="addTask()">Přidat</button>
@@ -120,6 +144,9 @@ button:hover {
 
 </div>
 
+<!-- 📅 Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -128,18 +155,24 @@ import {
   deleteDoc, getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔴 DOPLŇ SVŮJ CONFIG
+// 🔴 DOPLŇ SVŮJ FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyA7hYyRppxwh3HA_iLp2oQWfTzS-nasNv8",
-  authDomain: "cadovi---domacnost.firebaseapp.com",
-  projectId: "cadovi---domacnost"
+  apiKey: "TVŮJ_KLÍČ",
+  authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+  projectId: "TVŮJ_PROJEKT"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const tasksCol = collection(db, "tasks");
 
-// ➕ Přidání úkolu
+// 📅 aktivace kalendáře
+flatpickr("#deadline", {
+  dateFormat: "Y-m-d",
+  minDate: "today"
+});
+
+// ➕ Přidání
 window.addTask = function() {
   const name = document.getElementById("task").value;
   const deadline = document.getElementById("deadline").value;
@@ -177,7 +210,7 @@ window.editTask = async function(id, oldName) {
   }
 }
 
-// 🗑️ Smazání jednoho
+// 🗑️ Smazání
 window.deleteTask = async function(id) {
   await deleteDoc(doc(db, "tasks", id));
 }
@@ -185,7 +218,6 @@ window.deleteTask = async function(id) {
 // 🧹 Vymazat splněné
 window.clearDone = async function() {
   const snapshot = await getDocs(tasksCol);
-
   snapshot.forEach(async (docSnap) => {
     if (docSnap.data().done) {
       await deleteDoc(doc(db, "tasks", docSnap.id));
@@ -214,9 +246,7 @@ onSnapshot(tasksCol, (snapshot) => {
         <span class="small">${t.author} | 📅 ${t.deadline || "-"}</span>
       `;
 
-      if (isOverdue) {
-        div.classList.add("overdue");
-      }
+      if (isOverdue) div.classList.add("overdue");
 
       const btnDone = document.createElement("button");
       btnDone.innerText = "✔";
