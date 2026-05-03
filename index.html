@@ -1,107 +1,122 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Úkoly</title>
+<meta charset="UTF-8">
+<title>Rodinný plánovač</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
 
-    h2 {
-      margin-top: 30px;
-    }
+  /* 🎨 animované gradient pozadí */
+  background: linear-gradient(-45deg, #fceabb, #f8b500, #e0f7fa, #fce4ec);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
+}
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-    }
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: rgba(255,255,255,0.92);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
 
-    input, select {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      box-sizing: border-box;
-    }
+h1 {
+  text-align: center;
+}
 
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 5px;
-    }
+h2 {
+  margin-top: 25px;
+}
 
-    .btn-add {
-      background: #007bff;
-      color: white;
-    }
+input, select {
+  padding: 10px;
+  margin: 5px 0;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
 
-    .btn-done {
-      background: #28a745;
-      color: white;
-    }
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: 0.2s;
+}
 
-    .btn-edit {
-      background: #ffc107;
-    }
+button:hover {
+  transform: scale(1.05);
+}
 
-    .btn-delete {
-      background: #dc3545;
-      color: white;
-    }
+.btn-add { background: #007bff; color: white; }
+.btn-done { background: #28a745; color: white; }
+.btn-edit { background: #ffc107; }
+.btn-delete { background: #dc3545; color: white; }
+.btn-clear { background: #6c757d; color: white; width: 100%; }
 
-    .btn-clear {
-      background: #6c757d;
-      color: white;
-      width: 100%;
-    }
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  animation: fadeIn 0.3s ease;
+}
 
-    .task-info {
-      margin-bottom: 5px;
-    }
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
 
-    .overdue {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+.overdue {
+  color: red;
+  font-weight: bold;
+}
+
+.small {
+  font-size: 0.85em;
+  color: #666;
+}
+</style>
 </head>
 
 <body>
+
 <div class="container">
 
-<h2>Přidat úkol</h2>
+<h1>👨‍👩‍👧 Rodinný plánovač</h1>
 
-<input id="task" placeholder="Název úkolu">
+<h2>➕ Přidat úkol</h2>
+
+<input id="task" placeholder="📝 Co je potřeba udělat?">
 <input type="date" id="deadline">
 
 <select id="author">
-  <option>Honzule</option>
-  <option>Marťule</option>
+  <option>👨 Honzule</option>
+  <option>👩 Marťule</option>
 </select>
 
 <button class="btn-add" onclick="addTask()">Přidat</button>
 
-<h2>Aktivní úkoly</h2>
+<h2>📋 Aktivní úkoly</h2>
 <div id="active"></div>
 
-<h2>Splněné úkoly</h2>
+<h2>✅ Splněné úkoly</h2>
 <div id="done"></div>
 
-<button class="btn-clear" onclick="clearDone()">Vymazat splněné</button>
+<button class="btn-clear" onclick="clearDone()">🧹 Vymazat splněné</button>
 
 </div>
 
@@ -113,7 +128,7 @@ import {
   deleteDoc, getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔴 DOPLŇ CONFIG
+// 🔴 DOPLŇ SVŮJ CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyA7hYyRppxwh3HA_iLp2oQWfTzS-nasNv8",
   authDomain: "cadovi---domacnost.firebaseapp.com",
@@ -124,7 +139,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const tasksCol = collection(db, "tasks");
 
-// ➕ Přidání
+// ➕ Přidání úkolu
 window.addTask = function() {
   const name = document.getElementById("task").value;
   const deadline = document.getElementById("deadline").value;
@@ -154,7 +169,7 @@ window.markDone = function(id) {
 
 // ✏️ Editace
 window.editTask = async function(id, oldName) {
-  const newName = prompt("Upravit název:", oldName);
+  const newName = prompt("Upravit úkol:", oldName);
   if (newName) {
     await updateDoc(doc(db, "tasks", id), {
       name: newName
@@ -162,7 +177,7 @@ window.editTask = async function(id, oldName) {
   }
 }
 
-// 🗑️ Smazání jednoho úkolu
+// 🗑️ Smazání jednoho
 window.deleteTask = async function(id) {
   await deleteDoc(doc(db, "tasks", id));
 }
@@ -195,14 +210,16 @@ onSnapshot(tasksCol, (snapshot) => {
 
     if (!t.done) {
       div.innerHTML = `
-        <div class="task-info ${isOverdue ? 'overdue' : ''}">
-          <strong>${t.name}</strong><br>
-          ${t.author} | do: ${t.deadline || "-"}
-        </div>
+        <strong>${t.name}</strong><br>
+        <span class="small">${t.author} | 📅 ${t.deadline || "-"}</span>
       `;
 
+      if (isOverdue) {
+        div.classList.add("overdue");
+      }
+
       const btnDone = document.createElement("button");
-      btnDone.innerText = "✔ Splněno";
+      btnDone.innerText = "✔";
       btnDone.className = "btn-done";
       btnDone.onclick = () => markDone(docSnap.id);
 
@@ -224,8 +241,8 @@ onSnapshot(tasksCol, (snapshot) => {
 
     } else {
       div.innerHTML = `
-        <strong>${t.name}</strong><br>
-        ${t.author} | splněno: ${t.doneAt}
+        <strong>✅ ${t.name}</strong><br>
+        <span class="small">${t.author} | splněno: ${t.doneAt}</span>
       `;
       done.appendChild(div);
     }
