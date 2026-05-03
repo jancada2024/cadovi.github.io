@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Úkoly</title>
+</head>
+<body>
+
+<h2>Přidat úkol</h2>
+<input id="task" placeholder="Název úkolu">
+<input type="date" id="deadline">
+<button onclick="addTask()">Přidat</button>
+
+<h2>Aktivní úkoly</h2>
+<ul id="active"></ul>
+
+<h2>Splněné úkoly</h2>
+<ul id="done"></ul>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, collection, addDoc,
+  onSnapshot, updateDoc, doc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA7hYyRppxwh3HA_iLp2oQWfTzS-nasNv8",
+  authDomain: "cadovi---domacnost.firebaseapp.com",
+  projectId: "cadovi---domacnost"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const tasksCol = collection(db, "tasks");
+
+function addTask() {
+  const name = document.getElementById("task").value;
+  const deadline = document.getElementById("deadline").value;
+
+  addDoc(tasksCol, {
+    name,
+    created: new Date().toLocaleString(),
+    deadline,
+    done: false
+  });
+}
+
+function markDone(id) {
+  const ref = doc(db, "tasks", id);
+  updateDoc(ref, { done: true });
+}
+
+onSnapshot(tasksCol, (snapshot) => {
+  const active = document.getElementById("active");
+  const done = document.getElementById("done");
+
+  active.innerHTML = "";
+  done.innerHTML = "";
+
+  snapshot.forEach(docSnap => {
+    const t = docSnap.data();
+    const li = document.createElement("li");
+    li.innerHTML = `${t.name} (do: ${t.deadline})`;
+
+    if (!t.done) {
+      const btn = document.createElement("button");
+      btn.innerText = "Splněno";
+      btn.onclick = () => markDone(docSnap.id);
+      li.appendChild(btn);
+      active.appendChild(li);
+    } else {
+      done.appendChild(li);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
